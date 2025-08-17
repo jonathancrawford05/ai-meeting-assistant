@@ -1,6 +1,6 @@
 """
 Main entry point for the AI Meeting Assistant
-Streamlined for working versions only: simple + enhanced-simple
+Now includes Phase 4: LLM Integration with Ollama
 """
 import sys
 import argparse
@@ -10,10 +10,10 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent))
 
 def main():
-    parser = argparse.ArgumentParser(description="AI Meeting Assistant - Speech to Text")
+    parser = argparse.ArgumentParser(description="AI Meeting Assistant - Speech to Text + LLM")
     parser.add_argument(
         "--version", 
-        choices=["simple", "enhanced-simple"],
+        choices=["simple", "enhanced-simple", "phase4", "phase4-working"],
         default="enhanced-simple",
         help="Choose app version to run"
     )
@@ -46,11 +46,26 @@ def main():
         print("✨ Features: Multiple models, progress indicators, export options, enhanced UI")
         import enhanced_simple_server
         enhanced_simple_server.main()
+        
+    elif args.version == "phase4":
+        print("🚀 Launching Phase 4 Complete Server (LLM Integration)...")
+        print("✨ Features: Speech-to-Text + LLM Processing (summaries, key points, action items)")
+        print("🤖 Models: Whisper + Ollama (llama3.2, llama3.1, gpt-oss)")
+        import phase4_server
+        phase4_server.run_phase4_server(args.host, args.port)
+        
+    elif args.version == "phase4-working":
+        print("🚀 Launching Phase 4 Working Server (Clean Implementation)...")
+        print("✨ Features: Reliable file uploads + Complete LLM integration")
+        print("🤖 Models: Whisper + Ollama with clean HTML/CSS/JS interface")
+        print("💪 Status: Tested and working with proper multipart handling")
+        import phase4_working_server
+        phase4_working_server.run_phase4_working_server(args.host, args.port)
     
     else:
         # This should never happen due to choices constraint, but just in case
         print(f"❌ Unknown version: {args.version}")
-        print("Available versions: simple, enhanced-simple")
+        print("Available versions: simple, enhanced-simple, phase4")
         sys.exit(1)
 
 def show_help():
@@ -60,29 +75,49 @@ def show_help():
 
 📱 Available Versions:
 
-┌─────────────────┬──────────────────────────────────────────┐
-│ Version         │ Features                                 │
-├─────────────────┼──────────────────────────────────────────┤
-│ simple          │ • Basic Whisper transcription            │
-│                 │ • File upload interface                  │
-│                 │ • Clean, reliable web UI                 │
-│                 │ • Model caching (30x faster repeats)     │
-│                 │ • Runs on http://localhost:8080          │
-├─────────────────┼──────────────────────────────────────────┤
-│ enhanced-simple │ • All simple features +                  │
-│ (recommended)   │ • Multiple Whisper models                │
-│                 │ • Progress indicators                    │
-│                 │ • Processing statistics                  │
-│                 │ • Export options (TXT, JSON)             │
-│                 │ • Enhanced responsive UI                 │
-│                 │ • Multi-format support                   │
-│                 │ • Batch size control                     │
-└─────────────────┴──────────────────────────────────────────┘
+┌─────────────────┬────────────────────────────────────────────┐
+│ Version         │ Features                                   │
+├─────────────────┼────────────────────────────────────────────┤
+│ simple          │ • Basic Whisper transcription              │
+│                 │ • File upload interface                    │
+│                 │ • Clean, reliable web UI                   │
+│                 │ • Model caching (30x faster repeats)       │
+│                 │ • Runs on http://localhost:8080            │
+├─────────────────┼────────────────────────────────────────────┤
+│ enhanced-simple │ • All simple features +                    │
+│ (recommended)   │ • Multiple Whisper models                  │
+│                 │ • Progress indicators                      │
+│                 │ • Processing statistics                    │
+│                 │ • Export options (TXT, JSON)               │
+│                 │ • Enhanced responsive UI                   │
+│                 │ • Multi-format support                     │
+│                 │ • Batch size control                       │
+├─────────────────┼────────────────────────────────────────────┤
+│ phase4          │ • Complete Meeting Assistant               │
+│                 │ • All enhanced-simple features +           │
+│                 │ • LLM Processing (Ollama integration)      │
+│                 │ • Meeting summaries & key points           │
+│                 │ • Action items extraction                  │
+│                 │ • Meeting insights & analysis              │
+│                 │ • Multiple LLM models (llama3.2/3.1)       │
+│                 │ • Complete workflow automation             │
+│                 │ • Requires Ollama server running           │
+├─────────────────┼────────────────────────────────────────────┤
+│ phase4-working  │ • Latest Working Implementation (NEW!)     │
+│ (recommended)   │ • All phase4 features +                    │
+│                 │ • Clean HTML/CSS/JS separation             │
+│                 │ • Reliable file upload handling            │
+│                 │ • Proper multipart form parsing            │
+│                 │ • Professional responsive UI               │
+│                 │ • Tested and stable                        │
+└─────────────────┴────────────────────────────────────────────┘
 
 🚀 Quick Start:
-    python -m main                        # Enhanced version (default)
-    python -m main --version simple       # Basic version
-    python -m main --help                 # Show this help
+    python -m main                           # Enhanced version (default)
+    python -m main --version simple         # Basic version
+    python -m main --version phase4         # Complete LLM integration
+    python -m main --version phase4-working # Latest working version
+    python -m main --help                   # Show this help
 
 🧪 Testing:
     python test_setup.py                  # Validate installation
@@ -92,6 +127,11 @@ def show_help():
     • README.md - Project overview
     • ROADMAP.md - Development phases
     • docs/ - Technical documentation
+
+🔧 Phase 4 Requirements:
+    • Ollama server must be running: ollama serve
+    • Required models: llama3.2, llama3.1, gpt-oss:20b
+    • Install models: ollama pull llama3.2
 """)
 
 if __name__ == "__main__":

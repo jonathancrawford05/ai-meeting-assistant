@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Meeting Assistant - Phase 4</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:,">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 AI Meeting Assistant</h1>
+            <p>Phase 4: Speech-to-Text + LLM Processing</p>
+        </div>
+        
+        <div id="status" class="status-bar">
+            <strong>Status:</strong> <span id="status-text">Loading...</span>
+        </div>
+        
+        <div class="card">
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('transcribe')">🎤 Transcribe</button>
+                <button class="tab" onclick="showTab('llm')">🤖 LLM Process</button>
+                <button class="tab" onclick="showTab('workflow')">⚡ Complete</button>
+            </div>
+            
+            <!-- Transcribe Tab -->
+            <div id="tab-transcribe" class="tab-content active">
+                <h3>Audio Transcription</h3>
+                <div class="model-section">
+                    <h4>Choose Whisper Model:</h4>
+                    <div class="model-grid" id="whisper-models">
+                        <div class="loading">Loading models...</div>
+                    </div>
+                </div>
+                
+                <div class="upload-section">
+                    <div class="upload-area" id="transcribe-upload" onclick="document.getElementById('transcribe-file').click()">
+                        <div class="upload-icon">📁</div>
+                        <div class="upload-text">Click to upload audio file</div>
+                        <div class="upload-subtitle">Supported: WAV, MP3, M4A, FLAC, OGG, AAC</div>
+                    </div>
+                    <input type="file" id="transcribe-file" accept="audio/*" style="display: none;">
+                    <div class="file-info" id="transcribe-file-info" style="display: none;"></div>
+                </div>
+                
+                <div class="action-section">
+                    <button class="btn btn-primary" onclick="transcribeAudio()" id="transcribe-btn" disabled>
+                        <span class="btn-icon">🎤</span>
+                        Start Transcription
+                    </button>
+                </div>
+                
+                <div class="progress-section" id="transcribe-progress-section" style="display: none;">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="transcribe-progress"></div>
+                    </div>
+                    <div class="progress-text" id="transcribe-progress-text">Processing...</div>
+                </div>
+                
+                <div class="result-section" id="transcribe-result"></div>
+            </div>
+            
+            <!-- LLM Processing Tab -->
+            <div id="tab-llm" class="tab-content">
+                <h3>LLM Text Processing</h3>
+                
+                <div class="model-section">
+                    <h4>Choose LLM Model:</h4>
+                    <div class="model-grid" id="llm-models">
+                        <div class="loading">Loading models...</div>
+                    </div>
+                </div>
+                
+                <div class="model-section">
+                    <h4>Processing Type:</h4>
+                    <div class="model-grid" id="processing-types">
+                        <div class="loading">Loading options...</div>
+                    </div>
+                </div>
+                
+                <div class="input-section">
+                    <h4>Meeting Transcript:</h4>
+                    <textarea id="transcript-input" placeholder="Paste your meeting transcript here for LLM processing..."></textarea>
+                </div>
+                
+                <div class="action-section">
+                    <button class="btn btn-primary" onclick="processLLM()" id="llm-btn" disabled>
+                        <span class="btn-icon">🤖</span>
+                        Process with LLM
+                    </button>
+                </div>
+                
+                <div class="progress-section" id="llm-progress-section" style="display: none;">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="llm-progress"></div>
+                    </div>
+                    <div class="progress-text" id="llm-progress-text">Processing with AI...</div>
+                </div>
+                
+                <div class="result-section" id="llm-result"></div>
+            </div>
+            
+            <!-- Complete Workflow Tab -->
+            <div id="tab-workflow" class="tab-content">
+                <h3>Complete AI Workflow</h3>
+                <p class="workflow-description">Upload audio → Transcribe → LLM Analysis → Complete Report</p>
+                
+                <div class="model-section">
+                    <div class="model-row">
+                        <div class="model-column">
+                            <h4>Whisper Model:</h4>
+                            <div class="model-grid" id="workflow-whisper-models">
+                                <div class="loading">Loading...</div>
+                            </div>
+                        </div>
+                        <div class="model-column">
+                            <h4>LLM Model:</h4>
+                            <div class="model-grid" id="workflow-llm-models">
+                                <div class="loading">Loading...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="processing-options">
+                    <h4>Analysis Types:</h4>
+                    <div class="checkbox-grid">
+                        <label class="checkbox-item">
+                            <input type="checkbox" value="summary" checked>
+                            <span class="checkbox-label">📝 Summary</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" value="key_points" checked>
+                            <span class="checkbox-label">🔑 Key Points</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" value="action_items" checked>
+                            <span class="checkbox-label">✅ Action Items</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" value="insights">
+                            <span class="checkbox-label">💡 Insights</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="upload-section">
+                    <div class="upload-area" id="workflow-upload" onclick="document.getElementById('workflow-file').click()">
+                        <div class="upload-icon">⚡</div>
+                        <div class="upload-text">Upload audio for complete analysis</div>
+                        <div class="upload-subtitle">Will transcribe and analyze automatically</div>
+                    </div>
+                    <input type="file" id="workflow-file" accept="audio/*" style="display: none;">
+                    <div class="file-info" id="workflow-file-info" style="display: none;"></div>
+                </div>
+                
+                <div class="action-section">
+                    <button class="btn btn-primary btn-large" onclick="completeWorkflow()" id="workflow-btn" disabled>
+                        <span class="btn-icon">⚡</span>
+                        Start Complete Workflow
+                    </button>
+                </div>
+                
+                <div class="progress-section" id="workflow-progress-section" style="display: none;">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="workflow-progress"></div>
+                    </div>
+                    <div class="progress-text" id="workflow-progress-text">Starting workflow...</div>
+                </div>
+                
+                <div class="result-section" id="workflow-result"></div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <p>AI Meeting Assistant v4.0 - Built with ❤️ using Whisper + Ollama</p>
+        </div>
+    </div>
+    
+    <script src="app.js"></script>
+</body>
+</html>
