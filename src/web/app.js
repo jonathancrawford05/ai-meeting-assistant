@@ -149,6 +149,7 @@ function renderWhisperModels(containerId, context) {
     Object.entries(modelsInfo.whisper_models).forEach(([key, model]) => {
         const card = document.createElement('div');
         card.className = `model-card ${model.is_current ? 'selected' : ''}`;
+        card.dataset.key = key;  // 👈 Add data-key for reliable selection
         card.onclick = () => selectWhisperModel(key, context);
         card.innerHTML = `
             <strong>${model.description}</strong>
@@ -158,9 +159,6 @@ function renderWhisperModels(containerId, context) {
     });
 }
 
-/**
- * Render LLM models in a container
- */
 function renderLLMModels(containerId, context) {
     const container = document.getElementById(containerId);
     if (!container || !modelsInfo.llm_models) return;
@@ -170,22 +168,19 @@ function renderLLMModels(containerId, context) {
     Object.entries(modelsInfo.llm_models).forEach(([key, model]) => {
         const card = document.createElement('div');
         card.className = `model-card ${model.default ? 'selected' : ''}`;
+        card.dataset.key = key;  // 👈 Add data-key
         card.onclick = () => selectLLMModel(key, context);
         card.innerHTML = `
             <strong>${model.display_name}</strong>
             <small>${model.size} - ${model.speed}</small>
         `;
         container.appendChild(card);
-        
         if (model.default && !selectedLLMModel) {
             selectedLLMModel = key;
         }
     });
 }
 
-/**
- * Render processing types
- */
 function renderProcessingTypes() {
     const container = document.getElementById('processing-types');
     if (!container || !modelsInfo.processing_types) return;
@@ -195,6 +190,7 @@ function renderProcessingTypes() {
     Object.entries(modelsInfo.processing_types).forEach(([key, type]) => {
         const card = document.createElement('div');
         card.className = `model-card ${key === 'summary' ? 'selected' : ''}`;
+        card.dataset.key = key;  // 👈 Add data-key
         card.onclick = () => selectProcessingType(key);
         card.innerHTML = `
             <strong>${type.icon} ${type.name}</strong>
@@ -249,16 +245,15 @@ function selectProcessingType(key) {
 function updateModelSelection(containerId, selectedKey) {
     const container = document.getElementById(containerId);
     if (!container) return;
-    
+
+    // Remove 'selected' from all cards
     const cards = container.querySelectorAll('.model-card');
-    cards.forEach((card, index) => {
+    cards.forEach(card => {
         card.classList.remove('selected');
     });
-    
-    // Add selected class to the clicked card
-    const selectedCard = Array.from(cards).find(card => 
-        card.onclick && card.onclick.toString().includes(selectedKey)
-    );
+
+    // Add 'selected' to the correct card using data-key
+    const selectedCard = container.querySelector(`.model-card[data-key="${selectedKey}"]`);
     if (selectedCard) {
         selectedCard.classList.add('selected');
     }
