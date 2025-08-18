@@ -113,7 +113,22 @@ class Phase4WorkingHandler(SimpleHTTPRequestHandler):
                     'CONTENT_LENGTH': self.headers.get('Content-Length', '0')
                 }
             )
+            # print(f"📬 Raw form_data: {form_data}")
+            # print(f"📬 form_data.keys(): {list(form_data.keys()) if hasattr(form_data, 'keys') else 'No keys method'}")
+
+            # for key in form_data.keys():
+            #     field = form_data[key]
+            #     print(f"  → Field: {key}")
+            #     print(f"    Type: {type(field)}")
+            #     print(f"    Has value: {hasattr(field, 'value')}")
+            #     if hasattr(field, 'value'):
+            #         print(f"    Value: {field.value}")
+            #     if hasattr(field, 'filename'):
+            #         print(f"    Filename: {field.filename}")
             
+            # # 🔍 Debug: Log all form data keys
+            # print(f"📬 Form data keys: {list(form_data.keys())}")
+
             # Extract audio file
             if 'audio' not in form_data:
                 self.send_error_response("No audio file provided")
@@ -181,7 +196,7 @@ class Phase4WorkingHandler(SimpleHTTPRequestHandler):
         except Exception as e:
             print(f"❌ LLM processing error: {str(e)}")
             self.send_error_response(f"LLM processing failed: {str(e)}")
-    
+
     def handle_complete_workflow(self):
         """Handle complete workflow requests"""
         try:
@@ -200,6 +215,21 @@ class Phase4WorkingHandler(SimpleHTTPRequestHandler):
                     'CONTENT_LENGTH': self.headers.get('Content-Length', '0')
                 }
             )
+            # print(f"📬 Raw form_data: {form_data}")
+            # print(f"📬 form_data.keys(): {list(form_data.keys()) if hasattr(form_data, 'keys') else 'No keys method'}")
+
+            # for key in form_data.keys():
+            #     field = form_data[key]
+            #     print(f"  → Field: {key}")
+            #     print(f"    Type: {type(field)}")
+            #     print(f"    Has value: {hasattr(field, 'value')}")
+            #     if hasattr(field, 'value'):
+            #         print(f"    Value: {field.value}")
+            #     if hasattr(field, 'filename'):
+            #         print(f"    Filename: {field.filename}")
+
+            # # 🔍 Debug: Log all form data keys
+            # print(f"📬 Form data keys: {list(form_data.keys())}")
             
             # Extract parameters
             if 'audio' not in form_data:
@@ -210,22 +240,38 @@ class Phase4WorkingHandler(SimpleHTTPRequestHandler):
             if not audio_field.file:
                 self.send_error_response("Invalid audio file")
                 return
+
+            def safe_get_field(form, key, default=None):
+                """Safely extract value from cgi.FieldStorage"""
+                if key not in form:
+                    return default
+                field = form[key]
+                if hasattr(field, 'value'):
+                    return field.value
+                elif isinstance(field, str):
+                    return field
+                return default
+
+            # Extract parameters safely
+            whisper_model = safe_get_field(form_data, 'whisper_model', 'tiny')
+            llm_model = safe_get_field(form_data, 'llm_model')
+            processing_types_str = safe_get_field(form_data, 'processing_types', 'summary,key_points,action_items')
+
+            # Clean and validate processing_types
+            if processing_types_str:
+                processing_types = [pt.strip() for pt in processing_types_str.split(',') if pt.strip()]
+            else:
+                processing_types = ['summary']
+
+            # # 🔍 Debug: Log actual values
+            # print(f"⚡ Complete workflow request: whisper={whisper_model}, llm={llm_model}, types={processing_types}")
+            # print(f"  → whisper_model type: {type(whisper_model)}")
+            # print(f"  → llm_model type: {type(llm_model)}")
+            # print(f"  → processing_types: {processing_types}")
+            for i, pt in enumerate(processing_types):
+                print(f"    type[{i}]: {pt} ({type(pt)})")
             
-            whisper_model = form_data.get('whisper_model', 'tiny')
-            if hasattr(whisper_model, 'value'):
-                whisper_model = whisper_model.value
-            
-            llm_model = form_data.get('llm_model')
-            if hasattr(llm_model, 'value'):
-                llm_model = llm_model.value
-            
-            processing_types_str = form_data.get('processing_types', 'summary,key_points,action_items')
-            if hasattr(processing_types_str, 'value'):
-                processing_types_str = processing_types_str.value
-            
-            processing_types = processing_types_str.split(',') if processing_types_str else ['summary']
-            
-            print(f"⚡ Complete workflow request: whisper={whisper_model}, llm={llm_model}, types={processing_types}")
+            # processing_types = processing_types_str.split(',') if processing_types_str else ['summary']
             
             # Save to temporary file
             with tempfile.NamedTemporaryFile(delete=False, suffix='.wav') as temp_file:
@@ -253,7 +299,10 @@ class Phase4WorkingHandler(SimpleHTTPRequestHandler):
                     os.remove(temp_filename)
                     
         except Exception as e:
-            print(f"❌ Complete workflow error: {str(e)}")
+            print(f"❌ Complete workflow internal error: {str(e)}")
+            print(f"    Exception type: {type(e).__name__}")
+            import traceback
+            traceback.print_exc()  # ← This shows the full stack trace
             self.send_error_response(f"Complete workflow failed: {str(e)}")
     
     def send_json_response(self, data):

@@ -71,7 +71,8 @@ LLM_MODELS = {
         "size": "4.9 GB",
         "speed": "Medium",
         "description": "Balanced performance with strong reasoning capabilities",
-        "recommended_for": ["Detailed analysis", "Complex summaries", "Meeting insights"]
+        "recommended_for": ["Detailed analysis", "Complex summaries", "Meeting insights"],
+        "default": False
     },
     "gpt-oss": {
         "name": "gpt-oss:20b",
@@ -79,7 +80,8 @@ LLM_MODELS = {
         "size": "13 GB",
         "speed": "Slower", 
         "description": "Most capable model for complex analysis and detailed processing",
-        "recommended_for": ["Complex analysis", "Detailed reports", "Professional summaries"]
+        "recommended_for": ["Complex analysis", "Detailed reports", "Professional summaries"],
+        "default": False
     }
 }
 

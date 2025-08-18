@@ -179,6 +179,15 @@ function renderLLMModels(containerId, context) {
             selectedLLMModel = key;
         }
     });
+
+    // Fallback: if no model was selected, pick the first one
+    if (!selectedLLMModel && Object.keys(modelsInfo.llm_models).length > 0) {
+        selectedLLMModel = Object.keys(modelsInfo.llm_models)[0];
+        console.warn('⚠️ No LLM model selected. Using first model:', selectedLLMModel);
+    }
+
+    // 🔍 Debug: Confirm selection
+    console.log('🤖 renderLLMModels: selectedLLMModel =', selectedLLMModel);
 }
 
 function renderProcessingTypes() {
@@ -660,7 +669,12 @@ async function completeWorkflow() {
         formData.append('whisper_model', selectedWhisperModel);
         formData.append('llm_model', selectedLLMModel);
         formData.append('processing_types', processingTypes.join(','));
-        
+
+        // 🔍 Debug: Log all FormData entries
+        console.log('📬 Preparing complete workflow request with FormData:');
+        for (let [key, value] of formData.entries()) {
+            console.log(`  - ${key}:`, value);
+        }
         showProgress('workflow-progress-section', 'workflow-progress', 'workflow-progress-text', 'Transcribing audio...', 30);
         
         // Send request
